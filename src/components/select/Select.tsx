@@ -6,8 +6,8 @@ import { Text } from 'components/text';
 import arrowDown from 'src/images/arrow-down.svg';
 import { Option } from './Option';
 import { isFontFamilyClass } from './helpers/isFontFamilyClass';
-import { useEnterSubmit } from './hooks/useEnterSubmit';
-import { useOutsideClickClose } from './hooks/useOutsideClickClose';
+import { useEnterSubmit } from '../../hooks/useEnterSubmit';
+import { useOutsideClickClose } from '../../hooks/useOutsideClickClose';
 
 import styles from './Select.module.scss';
 
@@ -22,28 +22,29 @@ type SelectProps = {
 
 export const Select = (props: SelectProps) => {
 	const { options, placeholder, selected, onChange, onClose, title } = props;
-	const [isOpen, setIsOpen] = useState<boolean>(false);
+	const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
 	const rootRef = useRef<HTMLDivElement>(null);
 	const placeholderRef = useRef<HTMLDivElement>(null);
 
 	useOutsideClickClose({
-		isOpen,
-		rootRef,
+		isOpen: isFormOpen,
+		ref: rootRef,
 		onClose,
-		onChange: setIsOpen,
+		onChange: setIsFormOpen,
 	});
 
 	useEnterSubmit({
 		placeholderRef,
-		onChange: setIsOpen,
+		onChange: setIsFormOpen,
 	});
 
 	const handleOptionClick = (option: OptionType) => {
-		setIsOpen(false);
+		setIsFormOpen(false);
 		onChange?.(option);
 	};
+	
 	const handlePlaceHolderClick: MouseEventHandler<HTMLDivElement> = () => {
-		setIsOpen((isOpen) => !isOpen);
+		setIsFormOpen(!isFormOpen);
 	};
 
 	return (
@@ -58,12 +59,12 @@ export const Select = (props: SelectProps) => {
 			<div
 				className={styles.selectWrapper}
 				ref={rootRef}
-				data-is-active={isOpen}
+				data-is-active={isFormOpen}
 				data-testid='selectWrapper'>
 				<img
 					src={arrowDown}
 					alt='иконка стрелочки'
-					className={clsx(styles.arrow, { [styles.arrow_open]: isOpen })}
+					className={clsx(styles.arrow, { [styles.arrow_open]: isFormOpen })}
 				/>
 				<div
 					className={clsx(
@@ -85,7 +86,7 @@ export const Select = (props: SelectProps) => {
 						{selected?.title || placeholder}
 					</Text>
 				</div>
-				{isOpen && (
+				{isFormOpen && (
 					<ul className={styles.select} data-testid='selectDropdown'>
 						{options
 							.filter((option) => selected?.value !== option.value)
